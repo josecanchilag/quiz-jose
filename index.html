@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jose's Version - Quiz 2006</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #71a2da 0%, #a8c5e6 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .logo-container {
+            margin: 20px auto 30px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .custom-logo {
+            background: linear-gradient(135deg, #7ba7d4 0%, #a8c5e6 100%);
+            padding: 30px 20px;
+            border-radius: 15px;
+            position: relative;
+            min-height: 250px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .logo-image {
+            max-width: 1000%;
+            max-height: 220px;
+            object-fit: contain;
+            z-index: 2;
+        }
+
+        .logo-birds {
+            position: absolute;
+            font-size: 2rem;
+        }
+
+        .logo-bird-tl { top: 15px; left: 25px; }
+        .logo-bird-tr { top: 15px; right: 25px; }
+        .logo-bird-bl { bottom: 15px; left: 25px; }
+        .logo-bird-br { bottom: 15px; right: 25px; }
+
+        .countdown-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin: 20px auto;
+        }
+
+        .countdown-title {
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .countdown-timer {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .time-unit {
+            background: #000;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            min-width: 90px;
+        }
+
+        .time-value {
+            font-size: clamp(2rem, 5vw, 2.5rem);
+            font-weight: bold;
+            display: block;
+        }
+
+        .time-label {
+            font-size: clamp(0.8rem, 2vw, 1rem);
+            text-transform: uppercase;
+            margin-top: 5px;
+        }
+
+        .quiz-section {
+            display: none;
+            animation: fadeIn 1s ease-in;
+        }
+
+        .quiz-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .question-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            margin: 20px auto;
+            max-width: 600px;
+        }
+
+        .question-number {
+            font-size: 0.9rem;
+            color: #7ba7d4;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            font-size: clamp(1.1rem, 3vw, 1.4rem);
+            color: #333;
+            margin-bottom: 25px;
+            font-weight: bold;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            background: #f0f4f8;
+            border: 3px solid transparent;
+            padding: 15px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+            text-align: left;
+        }
+
+        .option:hover {
+            background: #e3eef7;
+            border-color: #7ba7d4;
+        }
+
+        .option.selected {
+            background: #7ba7d4;
+            color: white;
+            border-color: #5a8bc4;
+        }
+
+        .option.correct {
+            background: #4caf50;
+            color: white;
+            border-color: #45a049;
+        }
+
+        .option.incorrect {
+            background: #f44336;
+            color: white;
+            border-color: #da190b;
+        }
+
+        .btn {
+            background: #7ba7d4;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-family: 'Courier New', monospace;
+            cursor: pointer;
+            border-radius: 50px;
+            margin-top: 20px;
+            transition: all 0.3s;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            background: #5a8bc4;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .success-message {
+            display: none;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            max-width: 600px;
+            margin: 20px auto;
+        }
+
+        .success-message.active {
+            display: block;
+        }
+
+        .success-title {
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            color: #4caf50;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .password-box {
+            background: #f0f4f8;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
+            font-weight: bold;
+            color: #333;
+        }
+
+        .final-message {
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            color: #555;
+            margin: 20px 0;
+        }
+
+        .error-message {
+            background: #f44336;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .error-message.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <!-- Logo -->
+        <div class="logo-container">
+            <div class="custom-logo">
+                <img src="invitacion-final.png" alt="Jose's Version 2006" class="logo-image">
+            </div>
+        </div>
+
+        <!-- Countdown Section -->
+        <div id="countdownSection" class="countdown-section">
+            <h2 class="countdown-title">¡El quiz comienza en...</h2>
+            <div class="countdown-timer">
+                <div class="time-unit">
+                    <span class="time-value" id="days">00</span>
+                    <span class="time-label">Días</span>
+                </div>
+                <div class="time-unit">
+                    <span class="time-value" id="hours">00</span>
+                    <span class="time-label">Horas</span>
+                </div>
+                <div class="time-unit">
+                    <span class="time-value" id="minutes">00</span>
+                    <span class="time-label">Minutos</span>
+                </div>
+                <div class="time-unit">
+                    <span class="time-value" id="seconds">00</span>
+                    <span class="time-label">Segundos</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Section -->
+        <div id="quizSection" class="quiz-section">
+            <div id="questionContainer"></div>
+            <div class="error-message" id="errorMessage">
+                ¡Ups! Respuesta incorrecta. Inténtalo de nuevo 😊
+            </div>
+            <button class="btn" id="nextBtn" disabled>Siguiente</button>
+        </div>
+
+        <!-- Success Message -->
+        <div id="successSection" class="success-message">
+            <div class="success-title">¡Felicidades! 🎉</div>
+            <div class="password-box">LA CONTRASEÑA ES BLANK_SPACE</div>
+            <div class="final-message">Nos vemos allá 🩵</div>
+        </div>
+
+    </div>
+
+    <script>
+        const countdownDate = new Date('December 15, 2025 20:00:00').getTime();
+
+        const questions = [
+            {
+                question: "¿Cuál es el artista favorito de José?",
+                options: ["Bad Bunny", "Taylor Swift", "Shakira", "Karol G"],
+                correct: 1
+            },
+            {
+                question: "¿Qué día nació Josecito?",
+                options: ["15 de enero del 2006", "16 de enero del 2006", "15 de enero del 2005", "14 de enero del 2006"],
+                correct: 0
+            },
+            {
+                question: "¿Comida favorita de José?",
+                options: ["Salchipapa", "Hamburguesa", "Patacón con queso", "Pizza"],
+                correct: 2
+            },
+            {
+                question: "¿Álbum favorito de Taylor de José?",
+                options: ["Red", "The Life Of a Showgirl", "1989", "The Tortured Poets Department"],
+                correct: 2
+            },
+            {
+                question: "¿Color favorito de José?",
+                options: ["Rojo", "Azul", "Negro", "Beige"],
+                correct: 1
+            }
+        ];
+
+        let currentQuestion = 0;
+        let selectedAnswer = null;
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = countdownDate - now;
+
+            if (distance < 0) {
+                document.getElementById('countdownSection').style.display = 'none';
+                document.getElementById('quizSection').classList.add('active');
+                showQuestion();
+                clearInterval(countdownInterval);
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById('days').textContent = String(days).padStart(2, '0');
+            document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+            document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+            document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+        }
+
+        function showQuestion() {
+            if (currentQuestion >= questions.length) {
+                document.getElementById('quizSection').style.display = 'none';
+                document.getElementById('successSection').classList.add('active');
+                return;
+            }
+
+            const q = questions[currentQuestion];
+            const container = document.getElementById('questionContainer');
+
+            container.innerHTML = `
+                <div class="question-card">
+                    <div class="question-number">PREGUNTA ${currentQuestion + 1} DE ${questions.length}</div>
+                    <div class="question-text">${q.question}</div>
+                    <div class="options">
+                        ${q.options.map((opt, idx) => `
+                            <div class="option" data-index="${idx}">${opt}</div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+            selectedAnswer = null;
+            document.getElementById('nextBtn').disabled = true;
+            document.getElementById('errorMessage').classList.remove('active');
+
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.addEventListener('click', function () {
+                    document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedAnswer = parseInt(this.dataset.index);
+                    document.getElementById('nextBtn').disabled = false;
+                });
+            });
+        }
+
+        document.getElementById('nextBtn').addEventListener('click', function () {
+            const q = questions[currentQuestion];
+
+            if (selectedAnswer === q.correct) {
+                currentQuestion++;
+                showQuestion();
+            } else {
+                document.getElementById('errorMessage').classList.add('active');
+                setTimeout(showQuestion, 2000);
+            }
+        });
+
+        const countdownInterval = setInterval(updateCountdown, 1000);
+        updateCountdown();
+    </script>
+</body>
+</html>
